@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = 3000;
-const SCRAPE_URL = "http://localhost:60845/"; // Replace with actual scraping URL
+const SCRAPE_URL = "http://localhost:60845/"; 
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -76,7 +76,7 @@ app.post("/scrape", async (req, res) => {
     const records = [];
 
     $("table tbody tr").each((_, row) => {
-      const cols = $(row).find("td").map((_, el) => $(el).text()).get();
+      const cols = $(row).find("td").map((index, element) => $(element).text()).get();
 
       if (cols[0].toLowerCase().includes(name.toLowerCase())) {
         records.push({

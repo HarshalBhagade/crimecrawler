@@ -6,7 +6,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchAttempted, setSearchAttempted] = useState(false); // NEW
+  const [searchAttempted, setSearchAttempted] = useState(false); 
 
   useEffect(() => {
     const fetchUser = async () => {
