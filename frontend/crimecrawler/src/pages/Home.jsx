@@ -32,7 +32,14 @@ export default function Home() {
     setSearchAttempted(true); // Mark that search was attempted
 
     try {
-      const res = await axios.post("http://localhost:3000/scrape", { name });
+      const res = await axios.post("http://localhost:3000/scrape",
+        { name },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       setRecords(res.data.records || []);
     } catch (err) {
       console.error("Scraping failed", err);

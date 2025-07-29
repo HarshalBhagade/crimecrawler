@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import {load} from "cheerio";
 import axios from "axios";
+import { Kafka } from "kafkajs";
+import { startConsumer } from "./kafka/consumer.js";
 
 dotenv.config();
 
@@ -17,6 +19,14 @@ const PORT = 3000;
 const SCRAPE_URL = "http://localhost:60845/"; 
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+// Kafka setup
+const kafka = new Kafka({
+  clientId: 'crimecrawler',
+  brokers: [process.env.KAFKA_BROKER]
+});
+const producer = kafka.producer();
+await producer.connect();
 
 // Signup
 app.post("/signup", async (req, res) => {
@@ -66,11 +76,12 @@ function verifyToken(req, res, next) {
 }
 
 // Scrape route
-app.post("/scrape", async (req, res) => {
+app.post("/scrape", verifyToken, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Name is required" });
 
   try {
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
     const { data } = await axios.get(SCRAPE_URL);
     const $ = load(data);
     const records = [];
@@ -90,6 +101,19 @@ app.post("/scrape", async (req, res) => {
       }
     });
 
+    await producer.send({
+      topic: "scraped-records",
+      messages: [
+        {
+          value: JSON.stringify({
+            email: user.email,
+            query: name,
+            results: records,
+          }),
+        },
+      ],
+    });
+
     res.json({ records });
   } catch (err) {
     console.error("Scraping error:", err.message);
@@ -97,4 +121,7 @@ app.post("/scrape", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log("Server running on port 3000"));
+app.listen(PORT, () => {
+ console.log("Server running on port 3000")
+ startConsumer(); 
+});
