@@ -20,7 +20,7 @@ export const startConsumer = async () => {
         : "No records found.";
 
       await transporter.sendMail({
-        from: '"Scraper App" <harshalbhagade12@gmail.com>',
+        from: '"CRIMECRAWLER" <crimecrawler12@gmail.com>',
         to: email,
         subject: `Scrape Results for "${query}"`,
         text: `Here are related records to your search:\n\n${resultText}`,

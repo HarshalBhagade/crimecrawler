@@ -12,7 +12,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/login", { email, password });
+      const res = await axios.post("http://localhost:3000/api/auth/login", { email, password });
       login(res.data.token); // Save token + update context
       navigate("/");         // Will now work correctly
     } catch {
