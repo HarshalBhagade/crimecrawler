@@ -21,3 +21,11 @@ cd frontend/crimecrawler
 npm i
 npm run dev
 
+
+cd CRIMERECORD
+cd backend
+npm i
+npm run dev
+cd frontend
+npm i
+npm run dev
