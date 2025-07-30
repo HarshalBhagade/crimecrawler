@@ -67,7 +67,7 @@ export default function Results({
             </span>
           </div>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {records.map((record, index) => (
               <div
                 key={index}
@@ -94,14 +94,14 @@ export default function Results({
                     <label className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                       Status
                     </label>
-                    <div className="mt-1 flex items-center space-x-2">
-                      {getStatusIcon(record.status)}
+                    <div className="mt-1">
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border whitespace-nowrap ${getStatusColor(
                           record.status
                         )}`}
                       >
-                        {record.status}
+                        {getStatusIcon(record.status)}
+                        <span className="truncate">{record.status}</span>
                       </span>
                     </div>
                   </div>
