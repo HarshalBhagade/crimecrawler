@@ -3,7 +3,7 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import Header from "../components/Header"
-import { Mail, Lock, LogIn, Shield } from "lucide-react"
+import { Mail, Lock, LogIn, Shield, ShieldCheck } from "lucide-react"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -37,10 +37,10 @@ export default function Login() {
           {/* Logo and Title */}
           <div className="text-center">
             <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-6">
-              <Shield className="h-8 w-8 text-white" />
+              <ShieldCheck className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to CRIMECRAWLER</h2>
-            <p className="text-gray-600">Access professional criminal record search services</p>
+            <p className="text-gray-600">Access criminal record search services</p>
           </div>
 
           {/* Login Form */}
