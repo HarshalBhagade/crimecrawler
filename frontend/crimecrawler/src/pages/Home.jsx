@@ -63,11 +63,33 @@ export default function Home() {
   return user ? (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header showSignOut={true} onSignOut={handleSignOut} />
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Welcome user={user} />
-        <SearchSection name={name} setName={setName} handleSearch={handleSearch} loading={loading} />
-        <Summary records={records} />
-        <Results records={records} loading={loading} searchAttempted={searchAttempted} searchedName={searchedName} />
+      <main className="flex-1 w-full">
+        {/* Constrained width container for all content */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          {/* Welcome component with fixed width */}
+          <div className="w-full">
+            <Welcome user={user} />
+          </div>
+
+          {/* Search section with fixed width */}
+          <div className="w-full">
+            <SearchSection
+              name={name}
+              setName={setName}
+              handleSearch={handleSearch}
+              loading={loading}
+            />
+          </div>
+
+          {/* Results and Summary - will match same width as above */}
+          {records.length > 0 && <Summary records={records} />}
+          <Results
+            records={records}
+            loading={loading}
+            searchAttempted={searchAttempted}
+            searchedName={searchedName}
+          />
+        </div>
       </main>
     </div>
   ) : (
