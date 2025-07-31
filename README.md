@@ -13,10 +13,6 @@ npm i
 npm run dev
 
 
-cd dummywebsite
-npx serve .
-
-
 cd frontend/crimecrawler
 npm i
 npm run dev

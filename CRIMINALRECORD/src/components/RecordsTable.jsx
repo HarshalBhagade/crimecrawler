@@ -6,7 +6,11 @@ export default function RecordsTable() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetchCriminalRecords().then(setRecords);
+    async function loadRecords() {
+      const data = await fetchCriminalRecords();
+      setRecords(data);
+    }
+    loadRecords();
   }, []);
 
   const filtered = records.filter(
