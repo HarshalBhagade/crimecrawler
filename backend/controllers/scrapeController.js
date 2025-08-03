@@ -1,6 +1,10 @@
 import puppeteer from "puppeteer";
 import { producer } from "../kafka/producer.js";
 import { findUserById } from "../models/userModel.js";
+import { PrismaClient } from "@prisma/client";
+import { createLog } from "../models/searchLogModel.js";
+const prisma = new PrismaClient();
+// ...existing imports...
 
 const SCRAPE_URL = process.env.SCRAPE_URL;
 
@@ -20,10 +24,13 @@ export const scrapeRecords = async (req, res) => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto(SCRAPE_URL, { waitUntil: "networkidle2", timeout: 60000 });
-    await page.waitForFunction(() => {
-      const rows = document.querySelectorAll("table tbody tr");
-      return rows.length > 0;
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const rows = document.querySelectorAll("table tbody tr");
+        return rows.length > 0;
+      },
+      { timeout: 30000 }
+    );
 
     const records = await page.evaluate((searchQuery) => {
       const rows = Array.from(document.querySelectorAll("table tbody tr"));
@@ -62,6 +69,7 @@ export const scrapeRecords = async (req, res) => {
     await browser.close();
 
     if (records.length > 0) {
+      // Send the scraped records to Kafka
       await producer.send({
         topic: "scraped-records",
         messages: [
@@ -74,8 +82,9 @@ export const scrapeRecords = async (req, res) => {
           },
         ],
       });
+      // Log the search in the database
+      await createLog(user.id, query, records);
     }
-
     res.json({ records });
   } catch (err) {
     console.error("Scraping error:", err.message);

@@ -1,19 +1,15 @@
-import { ShieldCheck } from "lucide-react";
+// Header.jsx
+import { ShieldCheck, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Header({ showSignOut = false, onSignOut }) {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    // Clear authentication token
     localStorage.removeItem("token");
-    
-    // If parent component provided custom signout handler
     if (onSignOut) {
       onSignOut();
-    } 
-    // Otherwise use react-router navigation
-    else {
+    } else {
       navigate("/login", { replace: true });
     }
   };
@@ -35,29 +31,43 @@ export default function Header({ showSignOut = false, onSignOut }) {
             </h1>
           </div>
 
-          {/* Sign Out Button */}
-          {showSignOut && (
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-md border border-red-700 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          <div className="flex items-center space-x-4">
+            {/* History Button - Only shown when showSignOut is true */}
+            {showSignOut && (
+              <button
+                onClick={() => navigate("/logs")}
+                className="flex items-center space-x-2 text-white hover:text-red-300 transition-colors duration-200"
+                title="View search history"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              <span>Sign Out</span>
-            </button>
-          )}
+                <History className="h-5 w-5" />
+                <span className="hidden sm:inline">History</span>
+              </button>
+            )}
+
+            {/* Sign Out Button */}
+            {showSignOut && (
+              <button
+                onClick={handleSignOut}
+                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-md border border-red-700 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                <span>Sign Out</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </header>

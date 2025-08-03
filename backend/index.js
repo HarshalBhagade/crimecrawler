@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import scrapeRoutes from "./routes/scrape.js";
 import dotenv from "dotenv";
 import { startConsumer } from "./kafka/consumer.js";
+import logs from "./routes/logs.js";
 
 dotenv.config();
 
@@ -15,7 +16,8 @@ const PORT = 3000;
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api", scrapeRoutes);
-
+app.use("/api", logs);
+ 
 
 app.listen(PORT, () => {
  console.log("Server running on port 3000")

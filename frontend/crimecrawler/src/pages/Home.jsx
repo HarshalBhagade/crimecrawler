@@ -13,7 +13,7 @@ export default function Home() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
-
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -77,8 +77,7 @@ export default function Home() {
               loading={loading}
             />
           </div>
-
-          {records.length > 0 && <Summary records={records} />}
+          <Summary records={records} />
           <Results
             records={records}
             loading={loading}
