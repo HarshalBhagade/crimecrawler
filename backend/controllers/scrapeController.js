@@ -1,10 +1,7 @@
 import puppeteer from "puppeteer";
 import { producer } from "../kafka/producer.js";
 import { findUserById } from "../models/userModel.js";
-import { PrismaClient } from "@prisma/client";
 import { createLog } from "../models/searchLogModel.js";
-const prisma = new PrismaClient();
-// ...existing imports...
 
 const SCRAPE_URL = process.env.SCRAPE_URL;
 
@@ -78,6 +75,7 @@ export const scrapeRecords = async (req, res) => {
               email: user.email,
               query,
               results: records,
+              userId: user.id,
             }),
           },
         ],

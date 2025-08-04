@@ -5,6 +5,7 @@ import Welcome from "../components/Welcome";
 import SearchSection from "../components/Search";
 import Results from "../components/Results";
 import Summary from "../components/Summary";
+import EmailStatus from "../components/EmailStatus";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -13,7 +14,8 @@ export default function Home() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
-  
+  const [emailStatus, setEmailStatus] = useState(null);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -31,11 +33,56 @@ export default function Home() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const eventSource = new EventSource(
+      `http://localhost:3000/api/email?token=${encodeURIComponent(token)}`
+    );
+
+    eventSource.onopen = () => {
+      console.log("SSE connection opened");
+    };
+
+    eventSource.onmessage = (e) => {
+      if (e.data === "connected") {
+        console.log("SSE connected");
+        return;
+      }
+      if (e.data === ":ping") return;
+
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === "email-status") {
+          handleEmailStatus(data.status);
+        }
+      } catch (err) {
+        console.error("Error parsing SSE data:", err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error("SSE Error:", err);
+      // Reconnect after 3 seconds if connection fails
+      setTimeout(() => {
+        eventSource.close();
+        // You might want to implement a reconnect logic here
+      }, 3000);
+    };
+
+    return () => {
+      eventSource.close();
+      console.log("SSE connection closed");
+    };
+  }, []);
+
   const handleSearch = async () => {
     if (!name) return;
     setSearchedName(name);
     setLoading(true);
     setSearchAttempted(true);
+    setEmailStatus(null);
 
     try {
       const res = await axios.post(
@@ -60,6 +107,20 @@ export default function Home() {
     window.location.href = "/login";
   };
 
+  const handleEmailStatus = (status) => {
+    setEmailStatus(status);
+    // Auto-dismiss after 5 seconds for success/error states
+    if (status === "success" || status === "error") {
+      setTimeout(() => {
+        setEmailStatus(null);
+      }, 5000);
+    }
+  };
+
+  const dismissEmailStatus = () => {
+    setEmailStatus(null);
+  };
+
   return user ? (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header showSignOut={true} onSignOut={handleSignOut} />
@@ -78,6 +139,7 @@ export default function Home() {
             />
           </div>
           <Summary records={records} />
+          <EmailStatus status={emailStatus} onDismiss={dismissEmailStatus} />
           <Results
             records={records}
             loading={loading}

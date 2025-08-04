@@ -95,9 +95,9 @@ export default function Logs() {
           </>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+            {/* <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-semibold text-gray-900">Recent Searches</h3>
-            </div>
+            </div> */}
             
             <div className="divide-y divide-gray-200">
               {logs.length > 0 ? (

@@ -1,9 +1,11 @@
-import { Kafka } from "kafkajs";
+import { Kafka, logLevel } from "kafkajs";
 import { transporter } from "../mail/mailer.js";
+import { notifyClient } from '../utils/sse.js';
 
 const kafka = new Kafka({
   clientId: "mailer",
   brokers: [process.env.KAFKA_BROKER],
+  logLevel: logLevel.ERROR,
 });
 
 const consumer = kafka.consumer({ groupId: "email-group" });
@@ -15,7 +17,9 @@ export const startConsumer = async () => {
   await consumer.run({
     eachMessage: async ({ message }) => {
       try {
-        const { email, query, results } = JSON.parse(message.value.toString());
+        const { email, query, results, userId } = JSON.parse(message.value.toString());
+
+        notifyClient(userId, { type: 'email-status', status: 'sending' });
 
         const htmlContent = `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -82,10 +86,10 @@ export const startConsumer = async () => {
           subject: `🚨 ${results.length} Records Found for "${query}"`,
           html: htmlContent,
         });
-
-        console.log(`✅ Email sent to ${email}`);
+        notifyClient(userId, { type: 'email-status', status: 'success' });
       } catch (err) {
         console.error("❌ Failed to process Kafka message:", err);
+        notifyClient(userId, { type: 'email-status', status: 'error' });
       }
     },
   });
