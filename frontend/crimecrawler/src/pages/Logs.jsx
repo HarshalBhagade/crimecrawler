@@ -20,9 +20,17 @@ export default function Logs() {
             Authorization: `Bearer ${token}`,
           },
         });
-        
-        if (!response.ok) throw new Error("Failed to fetch logs");
-        
+
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch logs");
+        }
+
         const data = await response.json();
         setLogs(data.logs);
       } catch (error) {
@@ -31,9 +39,8 @@ export default function Logs() {
         setLoading(false);
       }
     };
-
     fetchLogs();
-  }, []);
+  }, [navigate]);
 
   const handleLogSelect = (log) => {
     setSelectedLog(log);
@@ -55,10 +62,12 @@ export default function Logs() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header showSignOut />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Search History</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Search History
+          </h2>
           <p className="text-gray-600">View your previous search results</p>
         </div>
 
@@ -98,7 +107,7 @@ export default function Logs() {
             {/* <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-semibold text-gray-900">Recent Searches</h3>
             </div> */}
-            
+
             <div className="divide-y divide-gray-200">
               {logs.length > 0 ? (
                 logs.map((log) => (

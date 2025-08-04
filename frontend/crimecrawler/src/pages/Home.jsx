@@ -94,8 +94,14 @@ export default function Home() {
         }
       );
       setRecords(res.data.records || []);
-    } catch {
+    } catch (error) {
       setRecords([]);
+
+      // Check for 401 Unauthorized (likely due to expired JWT)
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token"); // remove invalid token
+        window.location.href = "/login"; // redirect to login page
+      }
     } finally {
       setLoading(false);
     }
