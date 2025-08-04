@@ -67,7 +67,6 @@ export default function Home() {
       // Reconnect after 3 seconds if connection fails
       setTimeout(() => {
         eventSource.close();
-        // You might want to implement a reconnect logic here
       }, 3000);
     };
 
@@ -113,7 +112,7 @@ export default function Home() {
     if (status === "success" || status === "error") {
       setTimeout(() => {
         setEmailStatus(null);
-      }, 5000);
+      }, 7000);
     }
   };
 
