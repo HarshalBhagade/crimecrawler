@@ -1,6 +1,6 @@
 import { OctagonAlertIcon, ClipboardList, OctagonAlert, Shield } from "lucide-react";
 
-export default function Summary({ records }) {
+export default function Summary({ records, loading }) {
   if (!records || records.length === 0) return null;
 
   // Group by status with counts
@@ -21,6 +21,10 @@ export default function Summary({ records }) {
   const topOffenses = Object.entries(offenseCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
+
+  if (loading) {
+    return (null);
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

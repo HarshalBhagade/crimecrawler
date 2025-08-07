@@ -143,7 +143,7 @@ export default function Home() {
               loading={loading}
             />
           </div>
-          <Summary records={records} />
+          <Summary records={records} loading={loading}/>
           <EmailStatus status={emailStatus} onDismiss={dismissEmailStatus} />
           <Results
             records={records}

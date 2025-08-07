@@ -14,16 +14,24 @@ export const scrapeRecords = async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: "Query is required" });
 
+  let browser;
   try {
     const user = await findUserById(req.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const browser = await puppeteer.launch({ headless: true });
+    browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-    await page.goto(SCRAPE_URL, { waitUntil: "networkidle2", timeout: 60000 });
+    try {
+      await page.goto(SCRAPE_URL, { waitUntil: "networkidle2", timeout: 30000 });
+    } catch (navErr) {
+      if (navErr.message && navErr.message.includes("Navigation timeout")) {
+        return res.status(504).json({ error: "Scrape site is not responding. Please try again later." });
+      }
+      throw navErr;
+    }
 
     // Type into the search input
-    await page.waitForSelector('input[placeholder*="Search"]', { timeout: 10000 });
+    await page.waitForSelector('input[placeholder*="Search"]', { timeout: 3000 });
     await page.type('input[placeholder*="Search"]', query, { delay: 100 });
 
     // Wait for results to filter
@@ -31,11 +39,13 @@ export const scrapeRecords = async (req, res) => {
       (q) => {
         const rows = document.querySelectorAll("table tbody tr");
         if (!rows.length) return false;
-        return Array.from(rows).some((row) =>
-          row.textContent.toLowerCase().includes(q.toLowerCase())
-        );
+        // If "No matching records" row is present, resolve
+        if (Array.from(rows).some(row => row.textContent.includes("No matching records"))) {
+          return true;
+        }
+        return Array.from(rows).some(row => row.querySelectorAll("td").length === 11);
       },
-      { timeout: 10000 },
+      { timeout: 3000 },
       query
     );
 
@@ -68,8 +78,6 @@ export const scrapeRecords = async (req, res) => {
       return results;
     });
 
-    await browser.close();
-
     if (records.length > 0) {
       await producer.send({
         topic: "scraped-records",
@@ -90,7 +98,12 @@ export const scrapeRecords = async (req, res) => {
     res.json({ records });
   } catch (err) {
     console.error("Scraping error:", err.message);
-    res.status(500).json({ error: "Failed to scrape data" });
+    if (err.name === "TimeoutError") {
+      res.status(504).json({ error: "Scrape operation timed out. Please try again." });
+    } else {
+      res.status(500).json({ error: "Failed to scrape data" });
+    }
+  } finally {
+    if (browser) await browser.close();
   }
 };
-
