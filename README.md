@@ -1,5 +1,4 @@
 # crimecrawler
-scraping criminal data
 This repository contains two related websites:
 
 1. CRIMINALRECORD — A website containing data about criminals.  
