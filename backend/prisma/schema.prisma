@@ -18,7 +18,10 @@ model SearchLog {
   id        Int      @id @default(autoincrement())
   userId    Int
   query     String
-  results   Json // Array of { name, id, status, crime }
+  results   Json
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, query])
 }
+

@@ -15,6 +15,36 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [emailStatus, setEmailStatus] = useState(null);
+  const [logs, setLogs] = useState([]);
+
+  // Home.jsx
+  const handleSelectLog = (log) => {
+    setSearchedName(log.query);
+    setRecords(log.results);
+    setSearchAttempted(true);
+    setEmailStatus(null);
+  };
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:3000/api/logs", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setLogs(data.logs);
+        }
+      } catch (err) {
+        console.error("Error fetching logs:", err);
+      }
+    };
+    fetchLogs();
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -141,9 +171,11 @@ export default function Home() {
               setName={setName}
               handleSearch={handleSearch}
               loading={loading}
+              logs={logs}
+              onSelectLog={handleSelectLog}
             />
           </div>
-          <Summary records={records} loading={loading}/>
+          <Summary records={records} loading={loading} />
           <EmailStatus status={emailStatus} onDismiss={dismissEmailStatus} />
           <Results
             records={records}

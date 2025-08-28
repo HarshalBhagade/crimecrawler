@@ -15,9 +15,16 @@ export const findLogsByUserId = async (userId) => {
   });
 }
 
-export const createLog = async (userId, query, results) => {
-  return prisma.searchLog.create({
-    data: {
+export async function createLog(userId, query, results) {
+  return prisma.searchLog.upsert({
+    where: {
+      userId_query: { userId, query }, // compound unique
+    },
+    update: {
+      results,
+      createdAt: new Date(), // refresh timestamp if searched again
+    },
+    create: {
       userId,
       query,
       results,
