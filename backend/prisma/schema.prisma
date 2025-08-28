@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  searchLogs SearchLog[]
+}
+
+model SearchLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  query     String
+  results   Json // Array of { name, id, status, crime }
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
